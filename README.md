@@ -6,7 +6,7 @@ Then run the command in msys2 :
 "export PATH=$PATH:/c/i686-elf-tools-windows/bin"
   then test
 "i686-elf-gcc --version"
-   afterward, navigate to your project folder using "cd". a list of possible loctions i provided below:
+   afterward, navigate to your project folder using "cd". a list of possible loctions i provided below (replce %userprofile% with your userprofile:
 "cd /c/Users/%USERPROFILE%/ArcadeOS"
 "cd /c/Users/%USERPROFILE%/Desktop/ArcadeOS"
 "cd /c/Users/%USERPROFILE%/Downloads/ArcadeOS"
