@@ -5,4 +5,7 @@
 
 void init_paging();
 
+void load_page_directory(uint32_t* page_dir);
+void enable_paging();
+
 #endif

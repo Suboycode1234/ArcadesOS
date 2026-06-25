@@ -36,6 +36,10 @@ void init_paging()
 
     // 4. Initialize PMM with paging structures range excluded for production
     pmm_init(paging_start, paging_end);
+
+    // 5. Load page directory and enable paging
+    load_page_directory(page_directory);
+    enable_paging();
 }
 
 
