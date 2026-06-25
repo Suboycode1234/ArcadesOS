@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "arch/gdt.h"
 #include "arch/idt.h"
+#include "arch/isr.h"
 
 __attribute__((section(".multiboot")))
 unsigned long multiboot_header[] =
@@ -32,14 +33,25 @@ void kmain(void) {
     // Initialize IDT
     init_idt();
 
+    // Initialize ISR
+    init_isr();
+
     clear_screen();
 
     print_line("=== ARCADE OS ===", 0);
     print_line("GDT Loaded Successfully!", 1);
     print_line("IDT Loaded Successfully!", 2);
-    print_line("1. START GAME", 4);
-    print_line("2. SETTINGS", 5);
-    print_line("3. EXIT", 6);
+    print_line("ISR Wired Successfully!", 3);
+    
+    // Trigger Divide-by-Zero Exception to verify Step 3 ISR Exception Handling
+    volatile int x = 1;
+    volatile int y = 0;
+    volatile int z = x / y;
+    (void)z;
+
+    print_line("1. START GAME", 5);
+    print_line("2. SETTINGS", 6);
+    print_line("3. EXIT", 7);
 
     while (1) {
         asm("hlt");
