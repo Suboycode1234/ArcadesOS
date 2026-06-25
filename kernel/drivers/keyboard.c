@@ -1,9 +1,7 @@
 #include "keyboard.h"
 #include "arch/pic.h"
 #include "arch/isr.h"
-
-// Extern print helper defined in kernel.c
-extern void print_char(char c);
+#include "shell.h"
 
 // US QWERTY Keyboard Layout Set 1 Scancodes
 const char kbdus[128] =
@@ -56,11 +54,11 @@ void keyboard_handler(registers_t regs)
     }
     else
     {
-        // Key pressed - translate to ASCII and print to screen
+        // Key pressed - translate to ASCII and send to shell
         char c = kbdus[scancode];
         if (c != 0)
         {
-            print_char(c);
+            shell_handle_char(c);
         }
     }
     (void)regs;

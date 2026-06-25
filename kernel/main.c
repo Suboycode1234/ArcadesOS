@@ -6,6 +6,7 @@
 #include "arch/pic.h"
 #include "vga.h"
 #include "timer.h"
+#include "shell.h"
 #include "drivers/keyboard.h"
 
 __attribute__((section(".multiboot")))
@@ -59,6 +60,9 @@ void kmain(void) {
     print_line("2. SETTINGS", 8);
     print_line("3. EXIT", 9);
     print_line("Type below to verify Keyboard IRQ1:", 11);
+
+    // Initialize shell and display prompt
+    init_shell();
 
     while (1) {
         asm("hlt");
