@@ -8,6 +8,20 @@
 #include "timer.h"
 #include "shell.h"
 #include "drivers/keyboard.h"
+#include "memory/pmm.h"
+#include "memory/paging.h"
+
+void print_hex(uint32_t val, int row) {
+    char buf[11];
+    buf[0] = '0';
+    buf[1] = 'x';
+    const char* hexchars = "0123456789ABCDEF";
+    for (int i = 0; i < 8; i++) {
+        buf[2 + i] = hexchars[(val >> (28 - i * 4)) & 0x0F];
+    }
+    buf[10] = '\0';
+    print_line(buf, row);
+}
 
 __attribute__((section(".multiboot")))
 unsigned long multiboot_header[] =
@@ -60,6 +74,9 @@ void kmain(void) {
     print_line("2. SETTINGS", 8);
     print_line("3. EXIT", 9);
     print_line("Type below to verify Keyboard IRQ1:", 11);
+
+    // Initialize paging (which runs pmm_init with exclusions)
+    init_paging();
 
     // Initialize shell and display prompt
     init_shell();
