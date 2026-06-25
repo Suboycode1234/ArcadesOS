@@ -13,5 +13,9 @@ typedef struct registers
 
 void init_isr();
 void isr_handler(registers_t regs);
+void irq_handler(registers_t regs);
+
+// Registers a custom handler for an IRQ
+void register_interrupt_handler(uint8_t n, void (*handler)(registers_t));
 
 #endif

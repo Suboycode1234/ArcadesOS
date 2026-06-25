@@ -1,7 +1,8 @@
 #include "isr.h"
 #include "idt.h"
+#include "pic.h"
 
-// Declare external assembly stubs
+// Declare external assembly exception stubs
 extern void isr0();
 extern void isr1();
 extern void isr2();
@@ -34,6 +35,24 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
+
+// Declare external assembly hardware IRQ stubs
+extern void irq0();
+extern void irq1();
+extern void irq2();
+extern void irq3();
+extern void irq4();
+extern void irq5();
+extern void irq6();
+extern void irq7();
+extern void irq8();
+extern void irq9();
+extern void irq10();
+extern void irq11();
+extern void irq12();
+extern void irq13();
+extern void irq14();
+extern void irq15();
 
 // VGA print function defined in kernel.c
 extern void print_line(const char* str, int row);
@@ -73,6 +92,17 @@ const char *exception_messages[] = {
     "EXCEPTION 31: Reserved Exception"
 };
 
+// Function pointer array for registered IRQ handlers
+void *irq_routines[16] = {0};
+
+void register_interrupt_handler(uint8_t n, void (*handler)(registers_t))
+{
+    if (n >= 32 && n < 48)
+    {
+        irq_routines[n - 32] = handler;
+    }
+}
+
 void init_isr()
 {
     // Wire all 32 stubs into the IDT (selector 0x08, flags 0x8E for interrupt gate)
@@ -108,6 +138,24 @@ void init_isr()
     idt_set_gate(29, (uint32_t)isr29, 0x08, 0x8E);
     idt_set_gate(30, (uint32_t)isr30, 0x08, 0x8E);
     idt_set_gate(31, (uint32_t)isr31, 0x08, 0x8E);
+
+    // Wire remapped IRQs into IDT (entries 32 to 47)
+    idt_set_gate(32, (uint32_t)irq0, 0x08, 0x8E);
+    idt_set_gate(33, (uint32_t)irq1, 0x08, 0x8E);
+    idt_set_gate(34, (uint32_t)irq2, 0x08, 0x8E);
+    idt_set_gate(35, (uint32_t)irq3, 0x08, 0x8E);
+    idt_set_gate(36, (uint32_t)irq4, 0x08, 0x8E);
+    idt_set_gate(37, (uint32_t)irq5, 0x08, 0x8E);
+    idt_set_gate(38, (uint32_t)irq6, 0x08, 0x8E);
+    idt_set_gate(39, (uint32_t)irq7, 0x08, 0x8E);
+    idt_set_gate(40, (uint32_t)irq8, 0x08, 0x8E);
+    idt_set_gate(41, (uint32_t)irq9, 0x08, 0x8E);
+    idt_set_gate(42, (uint32_t)irq10, 0x08, 0x8E);
+    idt_set_gate(43, (uint32_t)irq11, 0x08, 0x8E);
+    idt_set_gate(44, (uint32_t)irq12, 0x08, 0x8E);
+    idt_set_gate(45, (uint32_t)irq13, 0x08, 0x8E);
+    idt_set_gate(46, (uint32_t)irq14, 0x08, 0x8E);
+    idt_set_gate(47, (uint32_t)irq15, 0x08, 0x8E);
 }
 
 void isr_handler(registers_t regs)
@@ -122,4 +170,23 @@ void isr_handler(registers_t regs)
             asm("hlt");
         }
     }
+}
+
+void irq_handler(registers_t regs)
+{
+    // Execute registered handler (if any) BEFORE sending EOI
+    void (*handler)(registers_t) = irq_routines[regs.int_no - 32];
+    if (handler)
+    {
+        handler(regs);
+    }
+
+    // Send EOI to PICs
+    if (regs.int_no >= 40)
+    {
+        // Send reset signal to slave PIC (IRQ8-15)
+        outb(PIC2_CMD, 0x20);
+    }
+    // Send reset signal to master PIC (IRQ0-7)
+    outb(PIC1_CMD, 0x20);
 }

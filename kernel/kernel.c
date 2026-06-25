@@ -3,6 +3,7 @@
 #include "arch/gdt.h"
 #include "arch/idt.h"
 #include "arch/isr.h"
+#include "arch/pic.h"
 
 __attribute__((section(".multiboot")))
 unsigned long multiboot_header[] =
@@ -26,6 +27,17 @@ void print_line(const char* str, int row) {
     }
 }
 
+volatile int timer_ticks = 0;
+void timer_handler(registers_t regs) {
+    timer_ticks++;
+    if (timer_ticks % 2 == 0) {
+        print_line("Timer status: TICK", 5);
+    } else {
+        print_line("Timer status: TOCK", 5);
+    }
+    (void)regs;
+}
+
 void kmain(void) {
     // Initialize GDT
     init_gdt();
@@ -33,25 +45,37 @@ void kmain(void) {
     // Initialize IDT
     init_idt();
 
-    // Initialize ISR
+    // Initialize ISR Exception & IRQ gates
     init_isr();
+
+    // Remap PIC: Master offset 32, Slave offset 40
+    pic_remap(32, 40);
+
+    // Mask all interrupts by default on both PICs
+    outb(PIC1_DATA, 0xFF);
+    outb(PIC2_DATA, 0xFF);
 
     clear_screen();
 
     print_line("=== ARCADE OS ===", 0);
     print_line("GDT Loaded Successfully!", 1);
     print_line("IDT Loaded Successfully!", 2);
-    print_line("ISR Wired Successfully!", 3);
-    
-    // Trigger Divide-by-Zero Exception to verify Step 3 ISR Exception Handling
-    volatile int x = 1;
-    volatile int y = 0;
-    volatile int z = x / y;
-    (void)z;
+    print_line("ISR Exceptions Wired Successfully!", 3);
+    print_line("PIC Remapped (IRQ0-15 -> Vectors 32-47)!", 4);
 
-    print_line("1. START GAME", 5);
-    print_line("2. SETTINGS", 6);
-    print_line("3. EXIT", 7);
+    // Register our timer interrupt handler on IRQ0 (vector 32)
+    register_interrupt_handler(32, timer_handler);
+
+    // Unmask IRQ0 (Timer) on the Master PIC, keep other IRQs masked
+    outb(PIC1_DATA, 0xFE); // 11111110b -> unmask IRQ0
+    outb(PIC2_DATA, 0xFF); // 11111111b -> mask all on Slave
+
+    // Enable hardware interrupts
+    asm volatile ("sti");
+
+    print_line("1. START GAME", 7);
+    print_line("2. SETTINGS", 8);
+    print_line("3. EXIT", 9);
 
     while (1) {
         asm("hlt");

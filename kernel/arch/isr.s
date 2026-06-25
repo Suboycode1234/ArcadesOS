@@ -1,4 +1,5 @@
 .extern isr_handler
+.extern irq_handler
 
 # Common ISR stub
 isr_common_stub:
@@ -24,6 +25,31 @@ isr_common_stub:
     popa                # Pops edi, esi, ebp, esp, ebx, edx, ecx, eax
     add $8, %esp        # Cleans up the pushed error code and pushed ISR number
     iret                # pops 5 things at once: CS, EIP, EFLAGS, SS, ESP
+
+# Common IRQ stub (requires EOI sending logic in handler before iret)
+irq_common_stub:
+    pusha               # Pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
+
+    mov %ds, %ax        # Save the data segment selector
+    push %eax
+
+    mov $0x10, %ax      # Load the kernel data segment descriptor
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %fs
+    mov %ax, %gs
+
+    call irq_handler
+
+    pop %eax            # Reload the original data segment descriptor
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %fs
+    mov %ax, %gs
+
+    popa                # Pops edi, esi, ebp, esp, ebx, edx, ecx, eax
+    add $8, %esp        # Cleans up the pushed error code and pushed IRQ number
+    iret                # pops 5 things at once
 
 # 32 Exception handlers
 .global isr0
@@ -249,3 +275,116 @@ isr31:
     push $0
     push $31
     jmp isr_common_stub
+
+# 16 Remapped hardware IRQs
+.global irq0
+irq0:
+    cli
+    push $0
+    push $32
+    jmp irq_common_stub
+
+.global irq1
+irq1:
+    cli
+    push $0
+    push $33
+    jmp irq_common_stub
+
+.global irq2
+irq2:
+    cli
+    push $0
+    push $34
+    jmp irq_common_stub
+
+.global irq3
+irq3:
+    cli
+    push $0
+    push $35
+    jmp irq_common_stub
+
+.global irq4
+irq4:
+    cli
+    push $0
+    push $36
+    jmp irq_common_stub
+
+.global irq5
+irq5:
+    cli
+    push $0
+    push $37
+    jmp irq_common_stub
+
+.global irq6
+irq6:
+    cli
+    push $0
+    push $38
+    jmp irq_common_stub
+
+.global irq7
+irq7:
+    cli
+    push $0
+    push $39
+    jmp irq_common_stub
+
+.global irq8
+irq8:
+    cli
+    push $0
+    push $40
+    jmp irq_common_stub
+
+.global irq9
+irq9:
+    cli
+    push $0
+    push $41
+    jmp irq_common_stub
+
+.global irq10
+irq10:
+    cli
+    push $0
+    push $42
+    jmp irq_common_stub
+
+.global irq11
+irq11:
+    cli
+    push $0
+    push $43
+    jmp irq_common_stub
+
+.global irq12
+irq12:
+    cli
+    push $0
+    push $44
+    jmp irq_common_stub
+
+.global irq13
+irq13:
+    cli
+    push $0
+    push $45
+    jmp irq_common_stub
+
+.global irq14
+irq14:
+    cli
+    push $0
+    push $46
+    jmp irq_common_stub
+
+.global irq15
+irq15:
+    cli
+    push $0
+    push $47
+    jmp irq_common_stub
