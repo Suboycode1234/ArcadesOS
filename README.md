@@ -1,8 +1,10 @@
-# ArcadeOS 🎮
+# ArcadeOS 🎮 — Custom Kernel (Deprecated)
 
-ArcadeOS is a multiboot-compatible, 32-bit x86 hobby operating system designed to run bare-metal or in an emulator.
+> [!WARNING]
+> **DEPRECATED & ARCHIVED:** This custom 32-bit x86 hobby kernel project is no longer in active use or development. It has been archived as a completed learning project. The main active development of ArcadeOS has shifted to a custom, gaming-optimized Arch Linux distribution builder (available on the main `arch-distro` branch).
 
 ---
+
 
 ## 🚀 Features Implemented
 
