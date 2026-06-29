@@ -1,4 +1,4 @@
-﻿$progressFile = "C:\Users\sethj\ArcadeOS\build_progress.txt"
+$progressFile = "C:\Users\sethj\ArcadeOS\build_progress.txt"
 $logFile      = "C:\Users\sethj\ArcadeOS\build_iso.log"
 $errFile      = "C:\Users\sethj\ArcadeOS\build_iso_err.log"
 $outputDir    = "C:\Users\sethj\ArcadeOS-distro"
@@ -14,7 +14,7 @@ function Write-Progress-File($pct, $status) {
 
 Write-Progress-File 0 "Initializing build..."
 
-$buildCmd = "cd ~/archlive && mkarchiso -v -o /tmp/out ."
+$buildCmd = "cd ~/arcadeos && mkarchiso -v -o /tmp/out ."
 $wslProcess = Start-Process wsl.exe `
     -ArgumentList "-d archlinux sh -c `"$buildCmd`"" `
     -RedirectStandardOutput $logFile `
@@ -86,7 +86,7 @@ if ($isoPath -ne "") {
     Write-Progress-File 98 "Copying ISO to Windows..."
     Write-Host "Copying $isoPath => $destPath"
     wsl -d archlinux -- bash -c "cp '$isoPath' '/mnt/c/Users/sethj/ArcadeOS-distro/$isoName'"
-    wsl -d archlinux -- bash -c "rm -rf /tmp/out /root/archlive/work"
+    wsl -d archlinux -- bash -c "rm -rf /tmp/out /root/arcadeos/work"
     Write-Host "Done! ISO at: $destPath"
     Write-Progress-File 100 "Complete! ISO ready: $isoName"
 } else {
