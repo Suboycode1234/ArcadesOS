@@ -61,11 +61,3 @@ A fully automated, space-optimized build environment configured inside WSL2 (Arc
     # Launcher batch file helper
     .\launch_qemu.bat
     ```
-
----
-
-## 👥 Collaborators
-*   **Seth:** Lead Developer
-*   **Claude:** Head Architect
-*   **ChatGPT:** Proofreader / Code Reviewer
-*   **Antigravity:** Code Assistant / Builder
