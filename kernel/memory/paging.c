@@ -1,5 +1,6 @@
 #include "paging.h"
 #include "pmm.h"
+#include "vga.h"
 
 // Page directory (1024 entries, 4KB page-aligned)
 static uint32_t page_directory[1024] __attribute__((aligned(4096)));
@@ -41,5 +42,27 @@ void init_paging()
     load_page_directory(page_directory);
     enable_paging();
 }
+
+void page_fault_handler(registers_t* regs)
+{
+    uint32_t faulting_address;
+    // Read the faulting address from CR2 register
+    asm volatile("mov %%cr2, %0" : "=r" (faulting_address));
+
+    clear_screen();
+    print_line("=== PAGE FAULT ===", 5);
+    print_line("Faulting address:", 7);
+    print_hex(faulting_address, 8);
+
+    print_line("Error code:", 10);
+    print_hex(regs->err_code, 11);
+
+    // Halt the CPU
+    while (1)
+    {
+        asm("hlt");
+    }
+}
+
 
 

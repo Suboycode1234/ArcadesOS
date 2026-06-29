@@ -3,4 +3,5 @@
 *.bin
 *.img
 build.ps1
-
+*.log
+*_progress.txt

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArcadeOS Build Progress</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #060912;
+      --surface: #0d1120;
+      --border: rgba(99,179,255,0.12);
+      --accent: #63b3ff;
+      --accent2: #a855f7;
+      --glow: rgba(99,179,255,0.35);
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --green: #22d3a5;
+      --yellow: #fbbf24;
+      --red: #f87171;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Animated background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(99,179,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,179,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridShift 20s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes gridShift {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(40px); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: min(720px, 95vw);
+      padding: 48px 40px;
+      background: linear-gradient(135deg, rgba(13,17,32,0.95), rgba(6,9,18,0.98));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow:
+        0 0 0 1px rgba(99,179,255,0.05),
+        0 24px 80px rgba(0,0,0,0.6),
+        0 0 60px rgba(99,179,255,0.04);
+      backdrop-filter: blur(20px);
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+
+    .logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 0 24px rgba(99,179,255,0.3);
+      flex-shrink: 0;
+      animation: logoPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes logoPulse {
+      0%, 100% { box-shadow: 0 0 24px rgba(99,179,255,0.3); }
+      50% { box-shadow: 0 0 40px rgba(99,179,255,0.6), 0 0 80px rgba(168,85,247,0.2); }
+    }
+
+    .title-block h1 {
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+
+    .title-block p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .live-badge {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34,211,165,0.1);
+      border: 1px solid rgba(34,211,165,0.25);
+      border-radius: 100px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 1.2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.7); }
+    }
+
+    /* Big percentage */
+    .percent-display {
+      text-align: center;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .percent-number {
+      font-size: clamp(72px, 15vw, 100px);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: all 0.5s ease;
+      display: inline-block;
+      filter: drop-shadow(0 0 30px rgba(99,179,255,0.3));
+    }
+
+    .percent-symbol {
+      font-size: 40px;
+      font-weight: 700;
+      vertical-align: super;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Progress bar */
+    .bar-wrapper {
+      margin-bottom: 28px;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 18px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.07);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--accent2), var(--accent), #38bdf8);
+      background-size: 200% 100%;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      animation: shimmer 2s linear infinite;
+      box-shadow: 0 0 20px var(--glow);
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    .bar-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 40px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+      border-radius: 100px;
+      animation: glimmer 1.5s ease-in-out infinite;
+    }
+
+    @keyframes glimmer {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    /* Stage label */
+    .stage-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--accent);
+      margin-top: 12px;
+      text-align: center;
+      letter-spacing: 0.03em;
+      min-height: 20px;
+      transition: all 0.4s ease;
+    }
+
+    /* Steps grid */
+    .steps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 13px;
+      color: var(--muted);
+      transition: all 0.4s ease;
+    }
+
+    .step.done {
+      border-color: rgba(34,211,165,0.2);
+      color: var(--green);
+      background: rgba(34,211,165,0.05);
+    }
+
+    .step.active {
+      border-color: rgba(99,179,255,0.3);
+      color: var(--accent);
+      background: rgba(99,179,255,0.07);
+      animation: stepPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes stepPulse {
+      0%, 100% { border-color: rgba(99,179,255,0.3); }
+      50% { border-color: rgba(99,179,255,0.7); }
+    }
+
+    .step-icon { font-size: 16px; flex-shrink: 0; }
+
+    /* Footer info */
+    .footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .refresh-info {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Done state */
+    .container.complete .bar-fill {
+      background: linear-gradient(90deg, var(--green), #38bdf8);
+      animation: none;
+    }
+    .container.complete .percent-number {
+      background: linear-gradient(135deg, var(--green), #38bdf8);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="mainCard">
+  <div class="header">
+    <div class="logo">🎮</div>
+    <div class="title-block">
+      <h1>ArcadeOS ISO Build</h1>
+      <p>archiso / mkarchiso</p>
+    </div>
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      LIVE
+    </div>
+  </div>
+
+  <div class="percent-display">
+    <span class="percent-number" id="pctNum">--</span><span class="percent-symbol">%</span>
+  </div>
+
+  <div class="bar-wrapper">
+    <div class="bar-track">
+      <div class="bar-fill" id="barFill" style="width: 0%"></div>
+    </div>
+    <div class="stage-label" id="stageLabel">Reading build status...</div>
+  </div>
+
+  <div class="steps">
+    <div class="step" id="step-setup"><span class="step-icon">⚙️</span> Environment Setup</div>
+    <div class="step" id="step-pacstrap"><span class="step-icon">📦</span> Package Install</div>
+    <div class="step" id="step-initramfs"><span class="step-icon">🧩</span> Initramfs Build</div>
+    <div class="step" id="step-syslinux"><span class="step-icon">💾</span> BIOS Bootloader</div>
+    <div class="step" id="step-uefi"><span class="step-icon">🔐</span> UEFI Bootloader</div>
+    <div class="step" id="step-squashfs"><span class="step-icon">🗜️</span> SquashFS Compress</div>
+    <div class="step" id="step-iso"><span class="step-icon">💿</span> ISO Packaging</div>
+    <div class="step" id="step-done"><span class="step-icon">✅</span> Build Complete!</div>
+  </div>
+
+  <div class="footer-row">
+    <div class="stat">
+      <span class="stat-label">Status</span>
+      <span class="stat-value" id="statStatus">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Elapsed</span>
+      <span class="stat-value" id="statElapsed">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Last Update</span>
+      <span class="stat-value" id="statTime">—</span>
+    </div>
+    <span class="refresh-info">auto-refresh: 3s</span>
+  </div>
+</div>
+
+<script>
+  const PROGRESS_FILE = 'build_progress.txt';
+
+  // Map stage keywords to step IDs and thresholds
+  const STAGE_MAP = [
+    { key: 'Setup',           id: 'step-setup',      pct: 5  },
+    { key: 'pacstrap',        id: 'step-pacstrap',   pct: 30 },
+    { key: 'initramfs',       id: 'step-initramfs',  pct: 55 },
+    { key: 'SYSLINUX',        id: 'step-syslinux',   pct: 65 },
+    { key: 'systemd-boot',    id: 'step-uefi',       pct: 70 },
+    { key: 'SquashFS',        id: 'step-squashfs',   pct: 75 },
+    { key: 'ISO',             id: 'step-iso',        pct: 95 },
+    { key: 'Complete',        id: 'step-done',       pct: 100},
+  ];
+
+  const startTime = Date.now();
+
+  function pad(n) { return String(n).padStart(2,'0'); }
+
+  function elapsed() {
+    const s = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m > 0 ? `${m}m ${pad(sec)}s` : `${sec}s`;
+  }
+
+  function nowStr() {
+    const d = new Date();
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  }
+
+  function updateSteps(pct, label) {
+    // Determine active stage index
+    let activeIdx = -1;
+    for (let i = STAGE_MAP.length - 1; i >= 0; i--) {
+      if (pct >= STAGE_MAP[i].pct || (label && label.includes(STAGE_MAP[i].key))) {
+        activeIdx = i;
+        break;
+      }
+    }
+
+    STAGE_MAP.forEach((s, i) => {
+      const el = document.getElementById(s.id);
+      el.classList.remove('done', 'active');
+      if (i < activeIdx) el.classList.add('done');
+      else if (i === activeIdx) el.classList.add('active');
+    });
+  }
+
+  async function fetchProgress() {
+    try {
+      // Fetch the plain text file with cache-busting
+      const res = await fetch(PROGRESS_FILE + '?t=' + Date.now());
+      if (!res.ok) throw new Error('File not found');
+      const text = await res.text();
+
+      // Get last non-empty line
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      if (!lines.length) throw new Error('Empty file');
+      const line = lines[lines.length - 1];
+
+      // Format: "75|[████░░░░░]|Stage label..."
+      // Split on first two pipes only
+      const firstPipe = line.indexOf('|');
+      const secondPipe = line.indexOf('|', firstPipe + 1);
+      if (firstPipe === -1 || secondPipe === -1) throw new Error('Bad format: ' + line.substring(0,30));
+
+      const pct = Math.min(100, parseInt(line.substring(0, firstPipe), 10));
+      const label = line.substring(secondPipe + 1).trim();
+
+      // Update big number
+      document.getElementById('pctNum').textContent = pct;
+
+      // Update bar
+      document.getElementById('barFill').style.width = pct + '%';
+
+      // Update label
+      document.getElementById('stageLabel').textContent = '⟶  ' + label;
+
+      // Update steps
+      updateSteps(pct, label);
+
+      // Footer
+      document.getElementById('statStatus').textContent = pct >= 100 ? '🎉 Done!' : 'Building...';
+      document.getElementById('statElapsed').textContent = elapsed();
+      document.getElementById('statTime').textContent = nowStr();
+
+      if (pct >= 100) {
+        document.getElementById('mainCard').classList.add('complete');
+        const badge = document.querySelector('.live-badge');
+        badge.innerHTML = '<span>🎉</span> DONE';
+        badge.style.background = 'rgba(34,211,165,0.15)';
+        badge.style.borderColor = 'rgba(34,211,165,0.4)';
+        badge.style.color = 'var(--green)';
+        // Mark all steps done
+        document.querySelectorAll('.step').forEach(s => {
+          s.classList.remove('active');
+          s.classList.add('done');
+        });
+      }
+
+    } catch(e) {
+      document.getElementById('stageLabel').textContent = '⚠️  ' + e.message;
+      document.getElementById('statStatus').textContent = 'Error';
+      document.getElementById('statTime').textContent = nowStr();
+    }
+  }
+
+  // Initial fetch + repeat every 3s
+  fetchProgress();
+  setInterval(fetchProgress, 3000);
+</script>
+</body>
+</html>

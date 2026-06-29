@@ -1,6 +1,7 @@
 #include "isr.h"
 #include "idt.h"
 #include "pic.h"
+#include "memory/paging.h"
 
 // Declare external assembly exception stubs
 extern void isr0();
@@ -160,6 +161,12 @@ void init_isr()
 
 void isr_handler(registers_t regs)
 {
+    if (regs.int_no == 14)
+    {
+        page_fault_handler(&regs);
+        return;
+    }
+
     if (regs.int_no < 32)
     {
         print_line("=== CPU EXCEPTION DETECTED ===", 10);
