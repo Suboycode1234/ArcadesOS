@@ -51,60 +51,117 @@ To set up the environment and build/run the Arch Linux distribution, download an
 
 ---
 
-## 🗺️ ArcadeOS Roadmap v5 — Gaming Linux Distribution
+## 🗺️ ArcadeOS Roadmap v6 — Gaming Linux Distribution + Dual Experience System
 
-This roadmap supersedes the kernel-based roadmap (v0–v4). Previous custom kernel work has been archived as a separate completed learning project and is not a dependency for this distribution.
+This roadmap supersedes the previous versions. The custom kernel track has been archived as a separate completed learning project and is not a dependency for this distribution.
 
 ### ⚙️ Standing Rulings & Baseline
 *   **Base OS:** Arch Linux, built via `archiso`.
-*   **Target Experience:** Windows-style installer wizard, gaming-optimized defaults, and Wine/Proton pre-integrated.
-*   **Engineering Discipline:** The strict **verify-before-proceed** discipline carries over unchanged from the kernel project. We inspect actual logs, file outputs, and boot menus at every single milestone.
+*   **Goal:** A gaming-focused Linux distribution that combines a full desktop gaming PC experience with a console-style gaming interface.
+*   **Philosophy:** Verify every layer before building on top of it.
+*   **Architecture:**
+    ```text
+    Arch Linux
+        ↓
+    Gaming-optimized system
+        ↓
+    ArcadeOS experience layer
+        ↓
+    Desktop Mode / Arcade Mode
+    ```
 
 ### 🗺️ Phases of Development
 
-#### 📦 PHASE 0 — Toolchain Setup (Completed)
-*   [x] Install Arch-on-WSL2.
-*   [x] Install `archiso` packaging toolchain.
-*   [x] Automate the build process using custom monitoring scripts (`run_build.ps1`, `progress.html`).
-*   [x] Compile and verify a baseline stock Arch ISO.
-*   [x] Verify the live ISO successfully boots in QEMU with WHPX hardware acceleration on Windows.
+#### 📦 PHASE 0 — Toolchain Setup ✅
+*Goal: Prove the factory works before modifying the machine.*
 
-#### 👥 PHASE 1 — Minimal Custom Profile (Next Phase)
-*   Fork the default `releng` archiso profile configuration into your own custom profile (`arcadeos`).
-*   Verify that your own custom profile name/structure compiles and boots successfully with **zero functional changes** first. This proves the customization pipeline itself is working before adding content.
+*   **Tasks:**
+    *   [x] Install Arch-on-WSL2.
+    *   [x] Install `archiso` packaging toolchain.
+    *   [x] Automate the build process using custom monitoring scripts (`run_build.ps1`, `progress.html`).
+    *   [x] Compile and verify a baseline stock Arch ISO.
+    *   [x] Verify the live ISO successfully boots in QEMU with WHPX hardware acceleration on Windows.
 
-#### 🐧 PHASE 2 — Base Package Set & Kernel Choice
-*   Select a gaming-oriented performance kernel (e.g., `linux-zen` or `linux-cachyos` for lower latency scheduling).
-*   Select the base desktop environment (KDE Plasma is recommended due to robust Wayland support, HDR development, and direct integration with gaming tools).
-*   Add the packages and confirm the distro boots successfully to a desktop environment, rather than a minimal command shell.
+#### 👥 PHASE 1 — Custom ISO Profile 🔄 IN PROGRESS
+*Goal: Create ArcadeOS itself, not just a modified Arch copy.*
+
+*   **Tasks:**
+    *   [x] Fork Arch `releng` profile.
+    *   [x] Rename profile to ArcadeOS (`iso_name="arcadeos"`, `install_dir="arcade"`).
+    *   [ ] Confirm custom ISO builds.
+    *   [ ] Verify custom ISO boots in QEMU successfully. **<---- WE ARE HERE**
+
+#### 🐧 PHASE 2 — Desktop Base + Gaming Stack
+*Goal: Create the actual gaming desktop foundation.*
+
+*   **Desktop:** KDE Plasma, Wayland, PipeWire audio, NetworkManager, Bluetooth support.
+*   **Gaming Foundation:** Vulkan support, Mesa graphics stack, GPU detection, Controller support, GameMode, MangoHud, Gamescope.
+*   **Kernel Evaluation:** Compare performance/latency of: `linux-zen`, `linux-cachyos`, and standard Arch kernel.
+*   **Testing:** Desktop boots, graphics/audio/controller/Vulkan work.
 
 #### 💿 PHASE 3 — Installer
-*   Integrate the **Calamares** installer framework (used by user-friendly distros like EndeavourOS and Manjaro to provide a themeable, wizard-driven "Windows-style install" experience).
-*   Create a virtual hard disk in QEMU and verify a real, permanent installation to disk works successfully (not just live-booting).
+*Goal: Make ArcadeOS install like a normal operating system.*
 
-#### 🎮 PHASE 4 — Wine / Proton / Compatibility Layer Integration
-*   Pre-bundle core translation layers: Wine, Proton-GE, and graphics libraries.
-*   Pre-bundle or configure a graphical game manager (such as Steam, Lutris, Heroic Games Launcher, or a custom frontend).
-*   Verify that an actual Windows game or executable launches and runs smoothly in the test environment.
+*   **Integrate:** Calamares installer.
+*   **Features:** Disk selection, User creation, Language/timezone, Bootloader setup.
+*   **Testing:**
+    ```text
+    ArcadeOS ISO ➔ QEMU virtual disk ➔ Install ➔ Restart ➔ Installed ArcadeOS boots
+    ```
+    *(The live environment is no longer the final product.)*
 
-#### ⚡ PHASE 5 — Gaming Optimizations
-*   **GameMode:** Bundle and configure Feral Interactive's GameMode for CPU governor and process priority adjustments while playing.
-*   **GPU Drivers:** Pre-configure native drivers (Mesa for AMD/Intel, NVIDIA proprietary drivers).
-*   **Kernel Tweaks:** Apply performance scheduler parameters and memory swappiness optimizations (following a measure-before-tuning discipline).
-*   **App & Emulator Bundling:** Pre-install popular gaming launchers, web browsers, engines, and emulators:
-    *   *Launchers/Browsers:* Steam, Epic Games Launcher, Riot Games Installer, Chrome, Opera GX.
-    *   *Game Engines:* Unity, Godot, Unreal Engine.
-    *   *Emulators:* Vita3K (PS Vita), Xemu (Xbox), Citra/Azahar (3DS), and other popular emulation systems.
-    *   *Optional:* Add an easy dualboot configuration mode (potentially bundled with Batocera).
+#### 🎮 PHASE 4 — Wine / Proton Compatibility Layer
+*Goal: Make Windows games work easily.*
 
-#### 🎨 PHASE 6 — Desktop/Launcher Identity & Theming
-*   Apply custom ArcadeOS desktop wallpapers, lock screens, system icons, and boot splash screens (`plymouth`).
-*   Implement a dual-mode option: a full desktop environment interface vs. a steam-launcher-first console mode shell (`gamescope` session, similar to SteamOS).
+*   **Add:** Wine, Proton-GE, Wine-GE, DXVK, VKD3D-Proton, Winetricks, Lutris, Bottles.
+*   **Integration:** Steam support, Epic Games / GOG support paths.
+*   **Testing:** Run Windows games, launchers, and compatibility tools out of the box with zero manual Wine configuration required by the user.
 
-#### 🛠️ PHASE 7 — Polish & Distribution
-*   Define the official ISO packaging and distribution pipeline.
-*   Develop an update/maintenance strategy for system packages.
-*   Provide complete documentation and begin physical hardware testing outside of virtual QEMU emulators.
+#### ⚡ PHASE 5 — Gaming Optimizations + Drivers + Tools
+*Goal: Make ArcadeOS feel tuned for gaming.*
 
-#### 🖥️ PHASE 8 — Windows-Style Installer Layout
-*   Refine the Calamares installer themes to mimic a highly simplified, welcoming, and user-friendly "Windows-style" wizard interface for maximum accessibility.
+*   **Hardware:** AMD, Intel, and NVIDIA graphics support (firmware packages).
+*   **Optimization:** GameMode profiles, CPU scheduling tuning, power profiles, and background service control.
+*   **Tools:** Steam, Heroic Games Launcher, Discord, Streaming & Recording tools.
+*   **Development Tools (Optional Installers):** Unreal Engine, Unity, Godot.
+*   **Emulation:** Preinstall: RetroArch, EmulationStation, Dolphin, PCSX2, PPSSPP, DuckStation, Vita3K, Xemu, and Citra/Azahar-style 3DS emulation.
+*   **BIOS Handling:** Provide an **ArcadeOS Emulator Manager** interface (users place legally dumped BIOS files in `~/ArcadeOS/BIOS`).
+*   *Optional:* Batocera-style emulator organization, dual-boot setup.
+
+#### 🎨 PHASE 6 — Branding / Theme
+*Goal: Make ArcadeOS recognizable.*
+
+*   **Add:** ArcadeOS logo, boot animation, wallpapers, custom KDE theme, icons, and system sounds.
+*   **Identity:** Establish a distinct identity: "ArcadeOS", not just "Arch with packages".
+
+#### 🛠️ PHASE 7 — Polish / Distribution
+*Goal: Turn the project into something people can actually use.*
+
+*   **Add:** Update strategy, documentation, recovery options, bug reporting, and official release builds.
+*   **Testing:** Test on physical desktop PCs, laptops, different GPUs, and maintain QEMU testing/reproducible builds.
+
+#### 🖥️ PHASE 8 — Windows-Like Installation Experience
+*Goal: Remove the Linux intimidation factor.*
+
+*   **Improve Installer:** Simple language, clear choices, and automatic setup.
+*   **First Boot Welcome Wizard:** Choose setup type (Gaming PC, Laptop, Living Room Console, Creator Machine) and apply automatic config (GPU, controller, recommended settings).
+
+#### ⭐ PHASE 9 — ArcadeOS Dual Experience System
+*Goal: Make one OS behave like both a PC and a console.*
+
+*   **Core Architecture:**
+    ```text
+                  Boot
+                    │
+                    ▼
+        ArcadeOS Experience Menu
+        ┌──────────────────────┐
+        ▼                      ▼
+    Desktop Mode          Arcade Mode
+    (KDE Plasma)          (Console UI)
+    - Keyboard/mouse      - Gamepad controller
+    - Full desktop        - Game launcher
+    - Apps / Coding       - Emulation Station
+    - Web Browsing        - Steam integration
+    ```
+*   **Mode Selection (At Boot):** Choose between 🖥️ Desktop Mode and 🎮 Arcade Mode, with customizable default startup preferences (Desktop, Arcade, or Ask every boot).
