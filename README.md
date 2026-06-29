@@ -1,7 +1,7 @@
-# ArcadeOS 🎮 — Custom Kernel (Deprecated)
+# ArcadeOS 🎮 — Custom Kernel (Deprecated & Incomplete)
 
 > [!WARNING]
-> **DEPRECATED & ARCHIVED:** This custom 32-bit x86 hobby kernel project is no longer in active use or development. It has been archived as a completed learning project. The main active development of ArcadeOS has shifted to a custom, gaming-optimized Arch Linux distribution builder (available on the main `arch-distro` branch).
+> **DEPRECATED & INCOMPLETE:** This custom 32-bit x86 hobby kernel project is **incomplete** and is no longer in active use or development. It has been archived as a legacy learning project. The main active development of ArcadeOS has shifted to a custom, gaming-optimized Arch Linux distribution builder (available on the main `arch-distro` branch).
 
 ---
 
@@ -22,21 +22,21 @@
 
 ## 🛠️ Requirements & Toolchain
 
-To build and run ArcadeOS, you need:
+To set up the development environment, compile the hobby kernel, or run it in emulation, you need to download and install the following tools:
 
-1. **i686-elf Toolchain**: Cross-compiler (`i686-elf-gcc`, `i686-elf-as`, `i686-elf-ld`).
-2. **QEMU Emulator**: To emulate the x86 hardware environment.
-3. **Make Utility**: To coordinate compilation.
+### 🖥️ Core Virtualization & Emulation
+*   **QEMU (Processor Emulator):** Needed to emulate and run the x86 custom kernel.
+    *   🔗 [Download QEMU for Windows (64-bit)](https://www.qemu.org/download/#windows)
+*   **i686-elf GCC Toolchain:** Cross-compiler toolchain needed to compile the 32-bit x86 target.
+    *   🔗 [Prebuilt i686-elf-tools for Windows](https://github.com/lordmilko/i686-elf-tools)
 
-### 📥 Downloading QEMU
+### 🔧 Development Support Tools
+*   **MSYS2 (Software Distribution and Building Platform):** Provides `make`, command line tools, and packages natively on Windows.
+    *   🔗 [Download MSYS2 Installer](https://www.msys2.org/)
 
-* **Windows**:
-  * [Official QEMU Windows Installer (64-bit)](https://www.qemu.org/download/#windows)
-  * Alternative via MSYS2: `pacman -S mingw-w64-x86_64-qemu`
-* **macOS**:
-  * Install via Homebrew: `brew install qemu`
-* **Linux (Ubuntu/Debian)**:
-  * Install via APT: `sudo apt-get install qemu-system-x86`
+### 📝 Code Editor
+*   **Visual Studio Code (VS Code):** Recommended editor for writing and reviewing C and Assembly source files.
+    *   🔗 [Download Visual Studio Code](https://code.visualstudio.com/)
 
 ---
 
