@@ -1,41 +1,9 @@
-# ArcadeOS 🎮
+# ArcadeOS Distro Builder 🎮
 
-ArcadeOS is a dual-track operating system development project aiming to create a gaming-focused OS environment. The repository consists of two components:
-
-1.  **ArcadeOS Kernel:** A multiboot-compatible, 32-bit x86 hobby operating system designed to run bare-metal or in an emulator.
-2.  **ArcadeOS Distro Builder:** A space-optimized WSL2 build pipeline that packages a custom, gaming-optimized Arch Linux live ISO.
+ArcadeOS Distro Builder is a space-optimized WSL2 build pipeline that packages a custom, gaming-optimized Arch Linux live ISO using `archiso`.
 
 ---
 
-## 💻 Track 1: ArcadeOS x86 Hobby Kernel
-
-### 🚀 Features Implemented
-*   **Flat GDT (Global Descriptor Table)**: Loaded and activated with kernel code/data segments.
-*   **IDT (Interrupt Descriptor Table)**: Configured with 256 interrupt gates.
-*   **ISR (Interrupt Service Routines)**: Supports all 32 standard CPU exceptions with safe stack alignment.
-*   **PIC Remapping (Programmable Interrupt Controller)**: Cascaded 8259 PICs mapped to IRQ0–15 -> Vectors 32–47.
-*   **Drivers:** System Timer (IRQ0), Keyboard Driver (IRQ1) with US QWERTY Set 1 translation, and a modular VGA driver with scrolling/text rendering support.
-*   **Interactive Shell Input Buffer**: Staged 128-byte line buffer with backspace/enter controls and command echoing.
-*   **Memory Management:** Minimal Heap Allocator (`kmalloc`) with bump allocation and paging/physical memory management foundation.
-
-### ⚙️ How to Build & Run
-Ensure your compiler tools (`i686-elf-gcc`, `i686-elf-as`, `i686-elf-ld`) and QEMU are added to your system path.
-```bash
-# Compile assembly entry stubs, kernel source code, drivers, and link them
-make all
-
-# Launch QEMU running the compiled kernel directly
-make run
-
-# Clean build artifacts
-make clean
-```
-
----
-
-## 💿 Track 2: ArcadeOS Arch Linux Distro Builder
-
-A fully automated, space-optimized build environment configured inside WSL2 (Arch Linux distro) to generate a bootable Arch-based gaming ISO using `archiso`.
 
 ### 🔍 Under the Hood: The Linux ISO Build Process
 The build pipeline utilizes `mkarchiso` to package the live operating system. Understanding the stages of this process helps clarify how modifications propagate into the final ISO image:
@@ -65,22 +33,20 @@ The build pipeline utilizes `mkarchiso` to package the live operating system. Un
 
 ## 🛠️ Prerequisites & Download Links
 
-To set up the development environment, compile the hobby kernel, or build the Arch Linux distro, download and install the following tools:
+To set up the environment and build/run the Arch Linux distribution, download and install the following tools:
 
 ### 🖥️ Core Virtualization & Emulation
-*   **QEMU (Processor Emulator):** Needed to run both the custom x86 kernel and the compiled Arch Linux distro.
+*   **QEMU (Processor Emulator):** Needed to emulate and run the compiled Arch Linux distro.
     *   🔗 [Download QEMU for Windows (64-bit)](https://www.qemu.org/download/#windows)
 *   **WSL2 (Windows Subsystem for Linux):** Necessary for running the Arch Linux builder pipeline.
     *   🔗 [WSL installation guide & commands](https://learn.microsoft.com/en-us/windows/wsl/install)
 
-### 🔧 Development Toolchains
-*   **MSYS2 (Software Distribution and Building Platform):** Provides `make`, `gcc`, and packages to build tools natively on Windows.
+### 🔧 Development Support Tools
+*   **MSYS2 (Software Development Environment):** Provides building blocks, scripting capabilities, and libraries natively on Windows.
     *   🔗 [Download MSYS2 Installer](https://www.msys2.org/)
-*   **i686-elf GCC Toolchain:** Needed for cross-compiling the 32-bit x86 kernel track.
-    *   🔗 [Prebuilt i686-elf-tools for Windows](https://github.com/lordmilko/i686-elf-tools)
 
-### 📝 Editor
-*   **Visual Studio Code (VS Code):** Recommended code editor for editing the kernel source and configuration profiles.
+### 📝 Code Editor
+*   **Visual Studio Code (VS Code):** Recommended code editor for editing builder scripts and configuration profiles.
     *   🔗 [Download Visual Studio Code](https://code.visualstudio.com/)
 
 ---
